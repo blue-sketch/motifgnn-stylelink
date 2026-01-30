@@ -1,4 +1,4 @@
-MotifGNN-StyleLink: VibeMatch Engine
+**MotifGNN-StyleLink: VibeMatch Engine**
 MotifGNN-StyleLink is a hybrid recommendation architecture designed for dating applications. It combines stylometric NLP (capturing a user's "vibe") with Motif-based Graph Neural Networks (capturing social interaction patterns) to predict high-compatibility matches.
 
 🧠 Architecture Overview
