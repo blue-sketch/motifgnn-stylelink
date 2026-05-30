@@ -1,44 +1,117 @@
-**MotifGNN-StyleLink: VibeMatch Engine**
-MotifGNN-StyleLink is a hybrid recommendation architecture designed for dating applications. It combines stylometric NLP (capturing a user's "vibe") with Motif-based Graph Neural Networks (capturing social interaction patterns) to predict high-compatibility matches.
+import weasyprint
+import markdown
+import os
 
-🧠 Architecture Overview
-The system operates in two primary stages:
+markdown_content = """
+# MotifGNN-StyleLink
 
-StyleLink Encoder (The "Vibe" Compressor):
+This project implements a hybrid recommendation system for dating applications, integrating stylometric Natural Language Processing (NLP) with Motif-based Graph Neural Networks (MGNN). By analyzing both textual communication styles and social interaction graphs, the system aims to predict long-term compatibility more accurately than traditional metadata-matching approaches.
 
-Input: High-dimensional features (387 dimensions) extracted from user communication styles.
+## Architecture
 
-Process: A sequential neural network with BatchNorm and ReLU activation compresses these features into a dense, 64-dimensional "Vibe Vector".
+The system operates through a two-stage pipeline:
 
-Goal: To create a numerical fingerprint of a user's texting style and personality "vibe".
+### 1. StyleLink Encoder
 
-VibeMatch MGNN (The Social Matchmaker):
+The StyleLink Encoder processes user communication data to generate a dense representation of their conversational style.
 
-Input: The 64-dimensional Vibe Vectors and a graph of user interactions (swipes/matches).
+*   **Input:** 387 stylometric and linguistic features extracted from user text data.
+*   **Architecture:** A sequential neural network layer incorporating Batch Normalization (BatchNorm) and Rectified Linear Unit (ReLU) activations.
+*   **Output:** A 64-dimensional feature vector, functioning as the user's stylistic profile.
 
-Motif Convolutions: The model analyzes two distinct structural "motifs":
+### 2. VibeMatch MGNN
 
-Reciprocal Matches: Signals direct mutual interest.
+The VibeMatch MGNN utilizes the stylistic profiles within a graph structure to evaluate compatibility based on network topology.
 
-Community Clusters: Signals shared social circles or broader "types".
+*   **Input:** The 64-dimensional stylistic vectors mapped onto a user interaction graph (e.g., swipe and match history).
+*   **Motif Convolutions:** The network calculates structural graph transformations across two specific topologies:
+    *   **Reciprocal Motifs:** Bidirectional edges representing mutual interest.
+    *   **Community Clusters:** Dense sub-graphs indicating shared social circles or affinity groups.
+*   **Output:** 32-dimensional latent embeddings for each user. Compatibility is determined via a dot-product similarity calculation between two user embeddings.
 
-Output: Refined latent embeddings (32 dimensions) used to calculate compatibility scores via dot-product similarity.
+## Data Provenance
 
-📊 Dataset & Provenance
-The training environment is grounded in two major research datasets:
+The model is trained on the following datasets:
 
-Cornell Movie-Dialogs Corpus: Used to derive the stylometric and linguistic features that form the "vibe" profiles.
+*   **Cornell Movie-Dialogs Corpus:** Utilized for extracting stylometric and linguistic features.
+*   **Stanford Large Network Dataset Collection (SNAP):** Utilized to simulate the interaction network topology.
 
-Stanford Social Profiles (SNAP): Used to simulate the network structure and interaction patterns (swipes, likes, and matches) required for the GNN.
+## Performance and Stability
 
-🚀 Key Performance
-Stability: Includes a "ReLU Trap" fix in the final layer and gradient clipping to ensure stable training.
+*   **Stability Mechanisms:** The architecture implements gradient clipping and a specific final-layer adjustment to prevent the "ReLU Trap" during deep backpropagation.
+*   **Accuracy:** The model achieves a Test Area Under the ROC Curve (AUC) of approximately 0.87 to 0.88.
 
-Accuracy: Reaches a Test AUC of ~0.87-0.88, indicating strong predictive power for successful matches.
+## Project Files
 
-📁 Project Artifacts
-vibematch_model.pth: The trained state dictionary for the MotifGNN.
+*   `mgnn.ipynb`: The primary pipeline notebook containing data normalization, node mapping, training loops, and the match output calculation.
+*   `vibematch_model.pth`: The optimized state dictionary containing the neural network weights and tensor parameters.
+*   `vibe_embeddings.pt`: The pre-calculated tensor file containing the final processed user embeddings.
+"""
 
-vibe_embeddings.pt: The final processed user embeddings for inference.
+html_content = markdown.markdown(markdown_content)
 
-mgnn.ipynb: The complete end-to-end pipeline from feature normalization to recommendation generation.
+full_html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @page {{
+      size: A4;
+      margin: 20mm;
+      background-color: #ffffff;
+  }}
+  body {{
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #333333;
+      line-height: 1.6;
+      font-size: 11pt;
+  }}
+  h1 {{
+      font-size: 24pt;
+      color: #2c3e50;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+  }}
+  h2 {{
+      font-size: 16pt;
+      color: #2980b9;
+      margin-top: 30px;
+      margin-bottom: 15px;
+  }}
+  h3 {{
+      font-size: 13pt;
+      color: #34495e;
+      margin-top: 20px;
+      margin-bottom: 10px;
+  }}
+  p {{
+      margin-bottom: 15px;
+  }}
+  ul {{
+      margin-bottom: 15px;
+      padding-left: 20px;
+  }}
+  li {{
+      margin-bottom: 5px;
+  }}
+  code {{
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #f8f9fa;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.9em;
+  }}
+</style>
+</head>
+<body>
+{html_content}
+</body>
+</html>
+"""
+
+with open("readme.html", "w") as f:
+    f.write(full_html)
+
+weasyprint.HTML("readme.html").write_pdf("README_MotifGNN-StyleLink.pdf")
+print("README_MotifGNN-StyleLink.pdf generated successfully.")
